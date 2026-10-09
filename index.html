@@ -1,421 +1,434 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NovaTow Innovations | Digital Twin Asset Traceability</title>
-  <!-- Tailwind CSS CDN for styling -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts: Inter and JetBrains Mono for automotive spec typography -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
-  
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            mono: ['"JetBrains Mono"', 'monospace'],
-          },
-          colors: {
-            brand: {
-              purple: '#9333ea',
-              dark: '#6b21a8',
-              light: '#c084fc',
-              glow: 'rgba(147, 51, 234, 0.35)',
-            },
-            dark: {
-              main: '#0b0f19',
-              card: '#111827',
-              inner: '#1f2937',
-              border: '#374151',
-            }
-          }
-        }
-      }
-    }
-  </script>
-  <style>
-    /* Custom glow and backdrop effects */
-    .glow-border {
-      box-shadow: 0 0 25px rgba(147, 51, 234, 0.25);
-    }
-    .badge-shimmer {
-      background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0) 100%);
-      background-size: 200% 100%;
-      animation: shimmer 3.5s infinite;
-    }
-    @keyframes shimmer {
-      0% { background-position: -200% 0; }
-      100% { background-position: 200% 0; }
-    }
-    /* Custom toast transition */
-    #toast {
-      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
-    }
-  </style>
-</head>
-<body class="bg-[#0b0f19] text-[#f9fafb] min-h-screen flex flex-col font-sans antialiased selection:bg-purple-600 selection:text-white">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NovaTow Innovations | Asset Traceability</title>
+<style>
+  :root {
+    --brand-purple: #9333ea;
+    --brand-purple-dark: #6b21a8;
+    --brand-purple-light: #c084fc;
+    --brand-glow: rgba(147, 51, 234, 0.4);
+    --bg-main: #0b0f19;
+    --bg-card: #111827;
+    --bg-card-secondary: #1f2937;
+    --border-color: #374151;
+    --text-primary: #f9fafb;
+    --text-secondary: #9ca3af;
+    --text-muted: #6b7280;
+    --status-green: #10b981;
+  }
 
-  <!-- Top Navigation / Brand Banner -->
-  <header class="w-full border-b border-gray-800 bg-[#111827]/80 backdrop-blur-md sticky top-0 z-40">
-    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-      <div class="flex items-center space-x-3">
-        <!-- Circular NovaTow Emblem -->
-        <div class="w-10 h-10 rounded-full bg-black border-2 border-[#9333ea] flex items-center justify-center shadow-[0_0_12px_rgba(147,51,234,0.4)]">
-          <svg class="w-5 h-5 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <path d="m8 12 2 2 4-4"></path>
-          </svg>
-        </div>
-        <div>
-          <div class="flex items-center space-x-1.5 leading-none">
-            <span class="font-black text-lg tracking-tight text-white uppercase">NovaTow</span>
-            <span class="font-extrabold text-xs tracking-widest text-purple-400 uppercase">Innovations</span>
-          </div>
-          <p class="text-[10px] text-gray-400 font-medium tracking-wide mt-0.5">Asset Traceability &amp; Digital Twin</p>
-        </div>
-      </div>
-      
-      <!-- Live Sync Status Indicator -->
-      <div class="flex items-center space-x-2 bg-purple-950/40 border border-purple-800/40 rounded-full px-3 py-1">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span class="text-[11px] font-semibold text-purple-200 tracking-wider uppercase">System Live</span>
-      </div>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 16px;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 520px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* ------------------- OFFICIAL BRAND HEADER ------------------- */
+  .brand-header {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-top: 4px solid var(--brand-purple);
+    padding: 20px 16px;
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  }
+
+  .logo-circle-container {
+    width: 86px;
+    height: 86px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2.5px solid var(--brand-purple);
+    box-shadow: 0 0 18px var(--brand-glow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000000;
+    margin-bottom: 12px;
+  }
+
+  .logo-circle-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .brand-text-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .brand-title {
+    font-size: 26px;
+    font-weight: 900;
+    line-height: 1.0;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+    margin: 0;
+  }
+
+  .brand-subtitle {
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--brand-purple-light);
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+    margin-top: 4px;
+  }
+
+  /* Recovery Truck Graphic Badge */
+  .truck-badge-container {
+    margin-top: 16px;
+    width: 100%;
+    background: radial-gradient(circle, rgba(31, 41, 55, 0.95) 0%, rgba(17, 24, 39, 1) 100%);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.6);
+  }
+
+  .truck-badge-container img {
+    max-height: 110px;
+    max-width: 100%;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 3px 6px rgba(0,0,0,0.7));
+  }
+
+  .badge-verified {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--status-green);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-top: 14px;
+  }
+
+  .badge-pulse {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--status-green);
+    box-shadow: 0 0 8px var(--status-green);
+  }
+
+  /* ------------------- ASSET SPEC CARD ------------------- */
+  .spec-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .spec-primary-box {
+    background: var(--bg-card-secondary);
+    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--brand-purple);
+    padding: 12px 14px;
+    border-radius: 8px;
+  }
+
+  .spec-primary-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    letter-spacing: 0.8px;
+  }
+
+  .spec-primary-val {
+    font-family: "Courier New", Courier, monospace;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-top: 4px;
+    word-break: break-all;
+  }
+
+  .data-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .data-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(55, 65, 81, 0.6);
+  }
+
+  .data-row:last-child {
+    border-bottom: none;
+    padding-bottom: 2px;
+  }
+
+  .data-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+
+  .data-val {
+    font-family: "Courier New", Courier, monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-align: right;
+    max-width: 65%;
+    word-break: break-word;
+  }
+
+  /* ------------------- ACTIONS SECTION ------------------- */
+  .actions-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 6px;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 14px 18px;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-sizing: border-box;
+  }
+
+  .btn-e3 {
+    background: var(--brand-purple);
+    color: #ffffff;
+    box-shadow: 0 4px 14px var(--brand-glow);
+  }
+  .btn-e3:hover {
+    background: var(--brand-purple-dark);
+  }
+
+  .btn-copy {
+    background: var(--bg-card-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+  }
+
+  /* ------------------- STANDBY / EMPTY STATE ------------------- */
+  .standby-box {
+    display: none;
+    text-align: center;
+    padding: 32px 16px;
+    color: var(--text-secondary);
+  }
+  .standby-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 6px;
+  }
+  .standby-desc {
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+
+  .app-footer {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    padding: 12px 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Official Brand Header -->
+  <header class="brand-header">
+    <div class="logo-circle-container" title="NovaTow Innovations Emblem">
+      <!-- Displays the uploaded logo -->
+      <img src="NovaTow Innovations Logo.jpg" alt="NovaTow Logo" onerror="this.onerror=null; this.src='logo.jpg';">
+    </div>
+    
+    <div class="brand-text-stack">
+      <h1 class="brand-title">NovaTow</h1>
+      <div class="brand-subtitle">Innovations</div>
+    </div>
+
+    <!-- Displays the uploaded recovery truck badge -->
+    <div class="truck-badge-container" id="truckBadgeBox">
+      <img src="Tow Truck Side Sticker.jpg" alt="NovaTow Recovery Truck" onerror="this.onerror=null; this.src='truck.jpg';">
+    </div>
+
+    <div class="badge-verified" id="statusBadge">
+      <div class="badge-pulse"></div>
+      <span>Verified As-Built Record</span>
     </div>
   </header>
 
-  <!-- Main Display Card -->
-  <main class="flex-1 max-w-xl w-full mx-auto p-4 sm:p-6 flex flex-col space-y-5">
-    
-    <!-- Verified Asset Card -->
-    <div class="w-full bg-[#111827] border border-[#374151] rounded-2xl overflow-hidden glow-border relative badge-shimmer">
-      
-      <!-- Card Top Ribbon -->
-      <div class="bg-gradient-to-r from-purple-900/60 via-[#1f2937] to-purple-900/60 border-b border-gray-700/60 px-5 py-3.5 flex items-center justify-between">
-        <div class="flex items-center space-x-2">
-          <span class="px-2 py-0.5 text-[10px] font-black uppercase tracking-wider rounded bg-purple-500/20 text-purple-300 border border-purple-500/40">AS-BUILT RECORD</span>
-          <span id="domainBadge" class="px-2 py-0.5 text-[10px] font-black uppercase tracking-wider rounded bg-gray-800 text-gray-300 border border-gray-700">ELECTRICAL</span>
-        </div>
-        <span class="text-[11px] font-mono text-gray-400 font-semibold" id="scanTimestamp">LIVE DISPATCH</span>
-      </div>
-
-      <div class="p-5 sm:p-6 space-y-6">
-        
-        <!-- Primary Key (MBK Display) -->
-        <div>
-          <label class="block text-[10.5px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Master Build Key (MBK)</label>
-          <div class="bg-[#1f2937] border-2 border-purple-500/60 rounded-xl p-3 flex items-center justify-between group shadow-inner">
-            <span id="dispMbk" class="font-mono text-xl sm:text-2xl font-black tracking-tight text-white select-all">--</span>
-            <button onclick="copyToClipboard('dispMbk', 'Master Build Key')" class="p-2 text-purple-300 hover:text-white bg-purple-950/60 hover:bg-purple-800 rounded-lg border border-purple-600/40 transition-colors" title="Copy MBK">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-            </button>
-          </div>
-        </div>
-
-        <!-- Detailed Specifications Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-          
-          <!-- Chassis VIN Block -->
-          <div class="bg-[#1f2937]/70 border border-gray-700/60 rounded-xl p-3.5 flex flex-col justify-between">
-            <div>
-              <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">17-Digit Vehicle VIN</span>
-              <span id="dispVin" class="font-mono text-sm sm:text-base font-bold text-gray-100 tracking-wide mt-1 block break-all select-all">--</span>
-            </div>
-            <div class="mt-2 pt-2 border-t border-gray-700/40 flex items-center justify-between text-[11px] text-gray-400">
-              <span>Platform Suffix:</span>
-              <span id="dispVinSuffix" class="font-mono font-bold text-purple-300">--</span>
-            </div>
-          </div>
-
-          <!-- Tow Unit Serial Block -->
-          <div class="bg-[#1f2937]/70 border border-gray-700/60 rounded-xl p-3.5 flex flex-col justify-between">
-            <div>
-              <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Tow Unit Identification</span>
-              <span id="dispUnit" class="font-mono text-sm sm:text-base font-bold text-gray-100 tracking-wide mt-1 block select-all">--</span>
-            </div>
-            <div class="mt-2 pt-2 border-t border-gray-700/40 flex items-center justify-between text-[11px] text-gray-400">
-              <span>Status:</span>
-              <span class="font-semibold text-emerald-400">Shop Certified</span>
-            </div>
-          </div>
-
-          <!-- Component Specification Block (Full Width) -->
-          <div class="sm:col-span-2 bg-[#1f2937]/70 border border-gray-700/60 rounded-xl p-3.5">
-            <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Installed Sub-Assembly</span>
-            <div class="flex items-center justify-between mt-1">
-              <div>
-                <span id="dispCompName" class="text-base font-bold text-white block">--</span>
-                <span id="dispCompCode" class="font-mono text-xs font-semibold text-purple-400 mt-0.5 block">CID: --</span>
-              </div>
-              <div class="w-9 h-9 rounded-lg bg-purple-900/40 border border-purple-500/30 flex items-center justify-center text-purple-300">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- Primary Action: Open in Epsilon 3 MES -->
-        <div class="space-y-2.5 pt-2">
-          <a id="e3ActionBtn" href="#" target="_blank" class="w-full bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-700 hover:from-purple-500 hover:to-indigo-600 text-white font-bold py-3.5 px-4 rounded-xl flex items-center justify-center space-x-2.5 shadow-lg shadow-purple-900/40 border border-purple-400/40 transition transform active:scale-[0.99]">
-            <svg class="w-5 h-5 text-purple-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-            <span class="text-sm tracking-wide">Open in Epsilon 3 MES</span>
-          </a>
-
-          <div class="grid grid-cols-2 gap-2.5">
-            <button onclick="copyAllSpecData()" class="bg-[#1f2937] hover:bg-[#283548] text-gray-200 border border-gray-700 font-semibold py-2.5 px-3 rounded-lg text-xs flex items-center justify-center space-x-1.5 transition">
-              <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
-              <span>Copy Full Specs</span>
-            </button>
-            <button onclick="window.print()" class="bg-[#1f2937] hover:bg-[#283548] text-gray-200 border border-gray-700 font-semibold py-2.5 px-3 rounded-lg text-xs flex items-center justify-center space-x-1.5 transition">
-              <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-              <span>Print Spec Card</span>
-            </button>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Card Footer Credit -->
-      <div class="bg-[#0b0f19]/80 border-t border-gray-800 px-5 py-3 flex items-center justify-between text-[11px] text-gray-400">
-        <span>Designed by NovaTow Lead Engineer <strong class="text-purple-300 font-semibold">Omar Faruk</strong></span>
-        <span>Birmingham, AL</span>
-      </div>
-
+  <!-- Spec Card (Active when QR is scanned) -->
+  <main class="spec-card" id="specCard">
+    <div class="spec-primary-box">
+      <div class="spec-primary-label">Master Build Key (MBK)</div>
+      <div class="spec-primary-val" id="valMbk">--</div>
     </div>
 
-    <!-- Interactive URL Simulator & Test Console -->
-    <div class="w-full bg-[#111827] border border-gray-800 rounded-2xl p-5 space-y-4">
-      <div class="flex items-center justify-between border-b border-gray-800 pb-3">
-        <div class="flex items-center space-x-2">
-          <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
-          <h2 class="text-xs font-bold uppercase tracking-wider text-gray-200">Shop Testing Sandbox &amp; Query Simulator</h2>
-        </div>
-        <span class="text-[10px] text-gray-400 bg-gray-800 px-2 py-0.5 rounded">No Backend Needed</span>
+    <div class="data-grid">
+      <div class="data-row">
+        <span class="data-label">Chassis VIN</span>
+        <span class="data-val" id="valVin">--</span>
       </div>
-      <p class="text-xs text-gray-400 leading-relaxed">
-        Click a vehicle preset below to test how your phone camera will render this landing page when scanning different QR codes on the shop floor.
-      </p>
-
-      <!-- Preset Quick Buttons -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-        <button onclick="applyPreset('colorado-diode')" class="p-2 text-left rounded-lg bg-[#1f2937] hover:bg-purple-950/60 border border-gray-700 hover:border-purple-500/50 transition">
-          <span class="block text-[11px] font-bold text-purple-300">Colorado C26</span>
-          <span class="block text-[10px] text-gray-400 font-mono">ELE-01 Diode Box</span>
-        </button>
-        <button onclick="applyPreset('tacoma-pump')" class="p-2 text-left rounded-lg bg-[#1f2937] hover:bg-purple-950/60 border border-gray-700 hover:border-purple-500/50 transition">
-          <span class="block text-[11px] font-bold text-purple-300">Tacoma T26</span>
-          <span class="block text-[10px] text-gray-400 font-mono">HYD-01 Pump Unit</span>
-        </button>
-        <button onclick="applyPreset('tacoma-winch')" class="p-2 text-left rounded-lg bg-[#1f2937] hover:bg-purple-950/60 border border-gray-700 hover:border-purple-500/50 transition">
-          <span class="block text-[11px] font-bold text-purple-300">Tacoma T26</span>
-          <span class="block text-[10px] text-gray-400 font-mono">MEC-02 Winch</span>
-        </button>
-        <button onclick="applyPreset('colorado-chassis')" class="p-2 text-left rounded-lg bg-[#1f2937] hover:bg-purple-950/60 border border-gray-700 hover:border-purple-500/50 transition">
-          <span class="block text-[11px] font-bold text-purple-300">Colorado C26</span>
-          <span class="block text-[10px] text-gray-400 font-mono">TOP-01 Door Jamb</span>
-        </button>
+      <div class="data-row">
+        <span class="data-label">Tow Unit S/N</span>
+        <span class="data-val" id="valUnit">--</span>
       </div>
-
-      <!-- Generated URL Bar -->
-      <div class="pt-2">
-        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Active QR Payload URL (Live in Address Bar)</label>
-        <div class="bg-[#1f2937] border border-gray-700 rounded-lg p-2.5 flex items-center justify-between">
-          <span id="activeUrlPreview" class="font-mono text-[11px] text-gray-300 truncate mr-2">--</span>
-          <button onclick="copyToClipboard('activeUrlPreview', 'Test URL')" class="text-xs text-purple-300 hover:text-white bg-purple-900/50 px-2 py-1 rounded border border-purple-600/40 shrink-0">Copy</button>
-        </div>
+      <div class="data-row">
+        <span class="data-label">Component Code</span>
+        <span class="data-val" id="valPart">--</span>
+      </div>
+      <div class="data-row">
+        <span class="data-label">Assembly Name</span>
+        <span class="data-val" id="valName">--</span>
+      </div>
+      <div class="data-row">
+        <span class="data-label">Child Serial UID</span>
+        <span class="data-val" id="valChildUid">--</span>
       </div>
     </div>
 
+    <div class="actions-group">
+      <!-- Direct Route into Epsilon 3 Inventory Search -->
+      <a id="e3DirectBtn" href="#" class="btn btn-e3" target="_blank" rel="noopener noreferrer">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+          <polyline points="15 3 21 3 21 9"/>
+          <line x1="10" y1="14" x2="21" y2="3"/>
+        </svg>
+        Open in Epsilon 3 Inventory
+      </a>
+
+      <!-- Quick Copy Button for Technicians -->
+      <button type="button" class="btn btn-copy" id="copyBtn" onclick="copyAssetKey()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+        </svg>
+        <span id="copyBtnText">Copy Serial / MBK</span>
+      </button>
+    </div>
   </main>
 
-  <!-- Floating Toast Notification (Zero native alerts used) -->
-  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-purple-900 border border-purple-400 text-white text-xs font-semibold px-4 py-2.5 rounded-full shadow-2xl opacity-0 pointer-events-none z-50 flex items-center space-x-2">
-    <svg class="w-4 h-4 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-    <span id="toastMsg">Action Successful</span>
+  <!-- Standby Box (Shown if someone visits the site without scanning a QR tag) -->
+  <div class="spec-card standby-box" id="standbyCard">
+    <div class="standby-title">Asset Scanner Standby</div>
+    <div class="standby-desc">
+      No vehicle parameters detected. Scan an official NovaTow physical QR asset tag to view its live specification record.
+    </div>
   </div>
 
-  <script>
-    /**
-     * NovaTow Dispatcher Application Core
-     * Completely static, zero backend exposure, strictly XSS-safe.
-     */
+  <footer class="app-footer">
+    NovaTow Innovations • Birmingham, AL<br>
+    Digital Twin Traceability Subsystem
+  </footer>
 
-    // Default Fallback Dataset (Used if opened without query parameters)
-    const DEFAULT_DATA = {
-      vin: "1GCBTEE43S1104921",
-      mbk: "C26-104921-0008",
-      unit: "MT1019-0008",
-      part: "ELE-01",
-      name: "DIODE ISOLATOR BOX",
-      workspace: "novatow" // Epsilon 3 tenant workspace
-    };
+</div>
 
-    // Preset configurations for the in-app testing console
-    const PRESETS = {
-      'colorado-diode': {
-        vin: "1GCBTEE43S1104921",
-        mbk: "C26-104921-0008",
-        unit: "0008",
-        part: "ELE-01",
-        name: "DIODE ISOLATOR BOX"
-      },
-      'tacoma-pump': {
-        vin: "3TYKB5FN9TT041543",
-        mbk: "T26-041543-0004",
-        unit: "0004",
-        part: "HYD-01",
-        name: "HYDRAULIC PUMP UNIT"
-      },
-      'tacoma-winch': {
-        vin: "3TYKB5FN9TT041543",
-        mbk: "T26-041543-0004",
-        unit: "0004",
-        part: "MEC-02",
-        name: "WINCH ASSEMBLY"
-      },
-      'colorado-chassis': {
-        vin: "1GCBTEE43S1104921",
-        mbk: "C26-104921-0008",
-        unit: "0008",
-        part: "TOP-01",
-        name: "MASTER VEHICLE CHASSIS"
-      }
-    };
+<script>
+  // Safe extraction directly from the URL query string
+  const p = new URLSearchParams(window.location.search);
+  const vin  = (p.get('vin')  || '').trim();
+  const mbk  = (p.get('mbk')  || '').trim();
+  const unit = (p.get('unit') || '').trim();
+  const part = (p.get('part') || '').trim();
+  const rawName = (p.get('name') || '').trim();
+  const name = rawName.replace(/_/g, ' ');
 
-    /**
-     * Parses the current browser URL query parameters
-     * Uses URLSearchParams and populates DOM strictly using textContent to prevent XSS.
-     */
-    function parseAndRenderAsset() {
-      const urlParams = new URLSearchParams(window.location.search);
-      
-      const vin  = (urlParams.get('vin') || DEFAULT_DATA.vin).trim().toUpperCase();
-      const mbk  = (urlParams.get('mbk') || DEFAULT_DATA.mbk).trim().toUpperCase();
-      const unit = (urlParams.get('unit') || DEFAULT_DATA.unit).trim().toUpperCase();
-      const part = (urlParams.get('part') || urlParams.get('cid') || DEFAULT_DATA.part).trim().toUpperCase();
-      
-      // Clean up readable component name (replace underscores with spaces)
-      let name = (urlParams.get('name') || urlParams.get('desc') || DEFAULT_DATA.name).replace(/_/g, ' ').trim().toUpperCase();
-      
-      // Determine domain badge from part code prefix (e.g. ELE, HYD, PNE, MEC)
-      let domain = "SUBSYSTEM";
-      if (part.startsWith("ELE")) domain = "ELECTRICAL";
-      else if (part.startsWith("HYD")) domain = "HYDRAULICS";
-      else if (part.startsWith("PNE")) domain = "PNEUMATICS";
-      else if (part.startsWith("MEC")) domain = "MECHANICAL";
-      else if (part.startsWith("TOP") || part.startsWith("MOD")) domain = "CHASSIS / VEHICLE";
+  const hasData = Boolean(vin || mbk || part);
 
-      // Render to DOM safely using textContent
-      document.getElementById('dispMbk').textContent = mbk;
-      document.getElementById('dispVin').textContent = vin;
-      document.getElementById('dispVinSuffix').textContent = vin.length >= 6 ? `...${vin.slice(-6)}` : vin;
-      document.getElementById('dispUnit').textContent = unit;
-      document.getElementById('dispCompCode').textContent = `CID: ${part}`;
-      document.getElementById('dispCompName').textContent = name;
-      document.getElementById('domainBadge').textContent = domain;
-      
-      // Timestamp
-      const now = new Date();
-      document.getElementById('scanTimestamp').textContent = `VERIFIED ${now.toLocaleDateString()}`;
+  if (hasData) {
+    const childUid = (mbk && part) ? `${mbk}-${part.replace('-', '')}` : (mbk || vin);
 
-      // Construct live Epsilon 3 Deep Link
-      // Directs to the tenant's inventory search using the MBK as the search key
-      const e3Url = `https://app.epsilon3.io/novatow/inventory?search=${encodeURIComponent(mbk)}`;
-      document.getElementById('e3ActionBtn').href = e3Url;
+    document.getElementById('valMbk').textContent = mbk || 'N/A';
+    document.getElementById('valVin').textContent = vin || 'N/A';
+    document.getElementById('valUnit').textContent = unit || 'N/A';
+    document.getElementById('valPart').textContent = part || 'N/A';
+    document.getElementById('valName').textContent = name || 'N/A';
+    document.getElementById('valChildUid').textContent = childUid;
 
-      // Update URL Preview bar
-      document.getElementById('activeUrlPreview').textContent = window.location.href;
-    }
+    // Direct link filtered to the Master Build Key inside your workspace
+    const baseE3Url = "https://app.epsilon3.io/app/team/ns58dgv5zcmtavv15rh8cz6rp7zp7mzp/builds/inventory";
+    const e3SearchUrl = mbk ? `${baseE3Url}?search=${encodeURIComponent(mbk)}` : baseE3Url;
+    document.getElementById('e3DirectBtn').href = e3SearchUrl;
+  } else {
+    document.getElementById('specCard').style.display = 'none';
+    document.getElementById('statusBadge').style.display = 'none';
+    document.getElementById('standbyCard').style.display = 'block';
+  }
 
-    /**
-     * Simulator preset switcher: Updates the query string in browser without a full reload
-     */
-    function applyPreset(presetKey) {
-      const data = PRESETS[presetKey];
-      if (!data) return;
+  function copyAssetKey() {
+    const textToCopy = document.getElementById('valChildUid').textContent;
+    if (!textToCopy || textToCopy === '--') return;
 
-      const newUrl = new URL(window.location.href);
-      newUrl.searchParams.set('vin', data.vin);
-      newUrl.searchParams.set('mbk', data.mbk);
-      newUrl.searchParams.set('unit', data.unit);
-      newUrl.searchParams.set('part', data.part);
-      newUrl.searchParams.set('name', data.name);
-
-      // Update history state so address bar reflects it cleanly
-      window.history.pushState({}, '', newUrl);
-      
-      parseAndRenderAsset();
-      showToast(`Loaded ${data.name} Preset`);
-    }
-
-    /**
-     * IFrame & Mobile-safe text copy utility using fallback textarea
-     */
-    function copyToClipboard(elementId, label) {
-      const text = document.getElementById(elementId).textContent;
-      executeCopy(text, `${label} copied to clipboard`);
-    }
-
-    function copyAllSpecData() {
-      const mbk = document.getElementById('dispMbk').textContent;
-      const vin = document.getElementById('dispVin').textContent;
-      const unit = document.getElementById('dispUnit').textContent;
-      const part = document.getElementById('dispCompCode').textContent;
-      const name = document.getElementById('dispCompName').textContent;
-
-      const fullSpec = `NOVATOW ASSET SPECIFICATION\n` +
-                       `--------------------------\n` +
-                       `MBK:  ${mbk}\n` +
-                       `VIN:  ${vin}\n` +
-                       `UNIT: ${unit}\n` +
-                       `PART: ${part} - ${name}\n` +
-                       `STATUS: Certified As-Built`;
-
-      executeCopy(fullSpec, "Full Specification Copied!");
-    }
-
-    function executeCopy(text, successMsg) {
-      const tempInput = document.createElement("textarea");
-      tempInput.value = text;
-      tempInput.style.position = "fixed";
-      tempInput.style.opacity = "0";
-      document.body.appendChild(tempInput);
-      tempInput.select();
-      
-      try {
-        document.execCommand('copy');
-        showToast(successMsg);
-      } catch (err) {
-        showToast("Error copying to clipboard");
-      }
-      document.body.removeChild(tempInput);
-    }
-
-    /**
-     * Toast notification handler (No alert() used)
-     */
-    function showToast(message) {
-      const toast = document.getElementById('toast');
-      const toastMsg = document.getElementById('toastMsg');
-      toastMsg.textContent = message;
-      
-      toast.classList.remove('opacity-0', 'pointer-events-none');
-      toast.classList.add('opacity-100');
-
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      const btnText = document.getElementById('copyBtnText');
+      btnText.textContent = "Copied to Clipboard!";
       setTimeout(() => {
-        toast.classList.remove('opacity-100');
-        toast.classList.add('opacity-0', 'pointer-events-none');
-      }, 2500);
-    }
-
-    // Initialize on page load
-    window.addEventListener('DOMContentLoaded', () => {
-      parseAndRenderAsset();
+        btnText.textContent = "Copy Serial / MBK";
+      }, 2000);
+    }).catch(() => {
+      alert("Asset Serial: " + textToCopy);
     });
-  </script>
+  }
+</script>
+
 </body>
 </html>
