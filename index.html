@@ -42,7 +42,6 @@
     gap: 16px;
   }
 
-  /* ------------------- OFFICIAL BRAND HEADER ------------------- */
   .brand-header {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
@@ -115,23 +114,28 @@
     font-weight: 700;
   }
 
+  /* Full-bleed Truck Graphic on Dispatcher */
   .truck-badge-container {
     margin-top: 14px;
     width: 100%;
     background: radial-gradient(circle, rgba(31, 41, 55, 0.95) 0%, rgba(17, 24, 39, 1) 100%);
     border: 1px solid var(--border-color);
     border-radius: 10px;
-    padding: 10px 14px;
+    padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
+    height: 150px;
+    overflow: hidden;
     box-shadow: inset 0 0 10px rgba(0,0,0,0.6);
   }
 
   .truck-badge-container img {
-    max-height: 110px;
-    max-width: 100%;
-    width: auto;
+    width: 100%;
+    height: auto;
+    max-height: none;
+    max-width: none;
+    display: block;
     object-fit: contain;
     filter: drop-shadow(0 3px 6px rgba(0,0,0,0.7));
   }
@@ -160,7 +164,6 @@
     box-shadow: 0 0 8px var(--status-green);
   }
 
-  /* ------------------- ASSET SPEC CARD ------------------- */
   .spec-card {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
@@ -172,7 +175,6 @@
     gap: 14px;
   }
 
-  /* Highlight Box: Focus on Scanned Physical Component */
   .spec-primary-box {
     background: var(--bg-card-secondary);
     border: 1px solid var(--border-color);
@@ -234,7 +236,6 @@
     word-break: break-word;
   }
 
-  /* ------------------- ACTIONS SECTION ------------------- */
   .actions-group {
     display: flex;
     flex-direction: column;
@@ -264,20 +265,15 @@
     color: #ffffff;
     box-shadow: 0 4px 14px var(--brand-glow);
   }
-  .btn-copy:hover {
-    background: var(--brand-purple-dark);
-  }
+  .btn-copy:hover { background: var(--brand-purple-dark); }
 
   .btn-e3 {
     background: var(--bg-card-secondary);
     color: var(--text-primary);
     border: 1px solid var(--border-color);
   }
-  .btn-e3:hover {
-    background: #374151;
-  }
+  .btn-e3:hover { background: #374151; }
 
-  /* ------------------- STANDBY / EMPTY STATE ------------------- */
   .standby-box {
     display: none;
     text-align: center;
@@ -307,8 +303,6 @@
 <body>
 
 <div class="container">
-
-  <!-- Official Brand Header -->
   <header class="brand-header">
     <div class="logo-circle-container" title="NovaTow Innovations Emblem">
       <img src="NovaTow Innovations Logo.jpg" alt="NovaTow Logo" onerror="this.onerror=null; this.src='logo.jpg';">
@@ -320,9 +314,9 @@
       <div class="engineer-credit">Designed by NovaTow Lead Engineer <span>Omar Faruk</span></div>
     </div>
 
-    <!-- Recovery Truck Graphic Badge -->
+    <!-- Scaled Recovery Truck Badge -->
     <div class="truck-badge-container">
-      <img src="Tow Truck Side Sticker.png" alt="NovaTow Recovery Truck" onerror="this.onerror=null; this.src='truck.jpg';">
+      <img src="Tow Truck Side Sticker.jpg" alt="NovaTow Recovery Truck" onerror="this.onerror=null; this.src='truck.jpg';">
     </div>
 
     <div class="badge-verified" id="statusBadge">
@@ -331,9 +325,7 @@
     </div>
   </header>
 
-  <!-- Spec Card (Active when QR is scanned) -->
   <main class="spec-card" id="specCard">
-    <!-- Top Highlight: Specific Scanned Asset UID -->
     <div class="spec-primary-box">
       <div class="spec-primary-label">Scanned Child Serial UID</div>
       <div class="spec-primary-val" id="valChildUid">--</div>
@@ -349,6 +341,10 @@
         <span class="data-val" id="valPart">--</span>
       </div>
       <div class="data-row">
+        <span class="data-label">Production Sequence #</span>
+        <span class="data-val" id="valSeq" style="color: #38bdf8;">--</span>
+      </div>
+      <div class="data-row">
         <span class="data-label">Chassis VIN</span>
         <span class="data-val" id="valVin">--</span>
       </div>
@@ -356,7 +352,6 @@
         <span class="data-label">Tow Unit S/N</span>
         <span class="data-val" id="valUnit">--</span>
       </div>
-      <!-- Master Build Key placed at bottom of list -->
       <div class="data-row">
         <span class="data-label">Master Build Key (MBK)</span>
         <span class="data-val" id="valMbk" style="color: var(--brand-purple-light);">--</span>
@@ -364,7 +359,6 @@
     </div>
 
     <div class="actions-group">
-      <!-- One-Tap Clipboard Copy for Quick MES Paste -->
       <button type="button" class="btn btn-copy" id="copyBtn" onclick="copyAssetKey()">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
@@ -373,7 +367,6 @@
         <span id="copyBtnText">1. Copy Serial UID</span>
       </button>
 
-      <!-- Route to Epsilon 3 Inventory -->
       <a id="e3DirectBtn" href="https://app.epsilon3.io/app/team/ns58dgv5zcmtavv15rh8cz6rp7zp7mzp/builds/inventory" class="btn btn-e3" target="_blank" rel="noopener noreferrer">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
@@ -385,7 +378,6 @@
     </div>
   </main>
 
-  <!-- Standby Box (Shown if someone visits without scanning a QR tag) -->
   <div class="spec-card standby-box" id="standbyCard">
     <div class="standby-title">Asset Scanner Standby</div>
     <div class="standby-desc">
@@ -397,7 +389,6 @@
     NovaTow Innovations • Birmingham, AL<br>
     Digital Twin Traceability Subsystem
   </footer>
-
 </div>
 
 <script>
@@ -406,23 +397,31 @@
   const mbk  = (p.get('mbk')  || '').trim();
   const unit = (p.get('unit') || '').trim();
   const part = (p.get('part') || '').trim();
+  let seq    = (p.get('seq')  || '').trim();
   const rawName = (p.get('name') || '').trim();
   const name = rawName.replace(/_/g, ' ');
+
+  // Extract sequence from MBK if not explicitly set in the URL
+  if (!seq && mbk) {
+    const parts = mbk.split('-');
+    if (parts.length >= 4) {
+      seq = parts[1];
+    }
+  }
 
   const hasData = Boolean(vin || mbk || part);
 
   if (hasData) {
     const childUid = (mbk && part) ? `${mbk}-${part.replace('-', '')}` : (mbk || vin);
 
-    // Primary highlight is now the specific Child Serial UID
     document.getElementById('valChildUid').textContent = childUid;
     document.getElementById('valName').textContent = name || 'N/A';
     document.getElementById('valPart').textContent = part || 'N/A';
+    document.getElementById('valSeq').textContent = seq ? `#${seq}` : 'N/A';
     document.getElementById('valVin').textContent = vin || 'N/A';
     document.getElementById('valUnit').textContent = unit || 'N/A';
     document.getElementById('valMbk').textContent = mbk || 'N/A';
 
-    // Direct link to inventory
     const baseE3Url = "https://app.epsilon3.io/app/team/ns58dgv5zcmtavv15rh8cz6rp7zp7mzp/builds/inventory";
     document.getElementById('e3DirectBtn').href = baseE3Url;
   } else {
