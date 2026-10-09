@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NovaTow Innovations | Digital Twin Asset Traceability</title>
+  <!-- Tailwind CSS CDN for styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter and JetBrains Mono for automotive spec typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              purple: '#9333ea',
+              dark: '#6b21a8',
+              light: '#c084fc',
+              glow: 'rgba(147, 51, 234, 0.35)',
+            },
+            dark: {
+              main: '#0b0f19',
+              card: '#111827',
+              inner: '#1f2937',
+              border: '#374151',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom glow and backdrop effects */
+    .glow-border {
+      box-shadow: 0 0 25px rgba(147, 51, 234, 0.25);
+    }
+    .badge-shimmer {
+      background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0) 100%);
+      background-size: 200% 100%;
+      animation: shimmer 3.5s infinite;
+    }
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    /* Custom toast transition */
+    #toast {
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+    }
+  </style>
+</head>
+<body class="bg-[#0b0f19] text-[#f9fafb] min-h-screen flex flex-col font-sans antialiased selection:bg-purple-600 selection:text-white">
+
+  <!-- Top Navigation / Brand Banner -->
+  <header class="w-full border-b border-gray-800 bg-[#111827]/80 backdrop-blur-md sticky top-0 z-40">
+    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <!-- Circular NovaTow Emblem -->
+        <div class="w-10 h-10 rounded-full bg-black border-2 border-[#9333ea] flex items-center justify-center shadow-[0_0_12px_rgba(147,51,234,0.4)]">
+          <svg class="w-5 h-5 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="m8 12 2 2 4-4"></path>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center space-x-1.5 leading-none">
+            <span class="font-black text-lg tracking-tight text-white uppercase">NovaTow</span>
+            <span class="font-extrabold text-xs tracking-widest text-purple-400 uppercase">Innovations</span>
+          </div>
+          <p class="text-[10px] text-gray-400 font-medium tracking-wide mt-0.5">Asset Traceability &amp; Digital Twin</p>
+        </div>
+      </div>
+      
+      <!-- Live Sync Status Indicator -->
+      <div class="flex items-center space-x-2 bg-purple-950/40 border border-purple-800/40 rounded-full px-3 py-1">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="text-[11px] font-semibold text-purple-200 tracking-wider uppercase">System Live</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Display Card -->
+  <main class="flex-1 max-w-xl w-full mx-auto p-4 sm:p-6 flex flex-col space-y-5">
+    
+    <!-- Verified Asset Card -->
+    <div class="w-full bg-[#111827] border border-[#374151] rounded-2xl overflow-hidden glow-border relative badge-shimmer">
+      
+      <!-- Card Top Ribbon -->
+      <div class="bg-gradient-to-r from-purple-900/60 via-[#1f2937] to-purple-900/60 border-b border-gray-700/60 px-5 py-3.5 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <span class="px-2 py-0.5 text-[10px] font-black uppercase tracking-wider rounded bg-purple-500/20 text-purple-300 border border-purple-500/40">AS-BUILT RECORD</span>
+          <span id="domainBadge" class="px-2 py-0.5 text-[10px] font-black uppercase tracking-wider rounded bg-gray-800 text-gray-300 border border-gray-700">ELECTRICAL</span>
+        </div>
+        <span class="text-[11px] font-mono text-gray-400 font-semibold" id="scanTimestamp">LIVE DISPATCH</span>
+      </div>
+
+      <div class="p-5 sm:p-6 space-y-6">
+        
+        <!-- Primary Key (MBK Display) -->
+        <div>
+          <label class="block text-[10.5px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Master Build Key (MBK)</label>
+          <div class="bg-[#1f2937] border-2 border-purple-500/60 rounded-xl p-3 flex items-center justify-between group shadow-inner">
+            <span id="dispMbk" class="font-mono text-xl sm:text-2xl font-black tracking-tight text-white select-all">--</span>
+            <button onclick="copyToClipboard('dispMbk', 'Master Build Key')" class="p-2 text-purple-300 hover:text-white bg-purple-950/60 hover:bg-purple-800 rounded-lg border border-purple-600/40 transition-colors" title="Copy MBK">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Detailed Specifications Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          
+          <!-- Chassis VIN Block -->
+          <div class="bg-[#1f2937]/70 border border-gray-700/60 rounded-xl p-3.5 flex flex-col justify-between">
+            <div>
+              <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">17-Digit Vehicle VIN</span>
+              <span id="dispVin" class="font-mono text-sm sm:text-base font-bold text-gray-100 tracking-wide mt-1 block break-all select-all">--</span>
+            </div>
+            <div class="mt-2 pt-2 border-t border-gray-700/40 flex items-center justify-between text-[11px] text-gray-400">
+              <span>Platform Suffix:</span>
+              <span id="dispVinSuffix" class="font-mono font-bold text-purple-300">--</span>
+            </div>
+          </div>
+
+          <!-- Tow Unit Serial Block -->
+          <div class="bg-[#1f2937]/70 border border-gray-700/60 rounded-xl p-3.5 flex flex-col justify-between">
+            <div>
+              <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Tow Unit Identification</span>
+              <span id="dispUnit" class="font-mono text-sm sm:text-base font-bold text-gray-100 tracking-wide mt-1 block select-all">--</span>
+            </div>
+            <div class="mt-2 pt-2 border-t border-gray-700/40 flex items-center justify-between text-[11px] text-gray-400">
+              <span>Status:</span>
+              <span class="font-semibold text-emerald-400">Shop Certified</span>
+            </div>
+          </div>
+
+          <!-- Component Specification Block (Full Width) -->
+          <div class="sm:col-span-2 bg-[#1f2937]/70 border border-gray-700/60 rounded-xl p-3.5">
+            <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Installed Sub-Assembly</span>
+            <div class="flex items-center justify-between mt-1">
+              <div>
+                <span id="dispCompName" class="text-base font-bold text-white block">--</span>
+                <span id="dispCompCode" class="font-mono text-xs font-semibold text-purple-400 mt-0.5 block">CID: --</span>
+              </div>
+              <div class="w-9 h-9 rounded-lg bg-purple-900/40 border border-purple-500/30 flex items-center justify-center text-purple-300">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Primary Action: Open in Epsilon 3 MES -->
+        <div class="space-y-2.5 pt-2">
+          <a id="e3ActionBtn" href="#" target="_blank" class="w-full bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-700 hover:from-purple-500 hover:to-indigo-600 text-white font-bold py-3.5 px-4 rounded-xl flex items-center justify-center space-x-2.5 shadow-lg shadow-purple-900/40 border border-purple-400/40 transition transform active:scale-[0.99]">
+            <svg class="w-5 h-5 text-purple-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+            <span class="text-sm tracking-wide">Open in Epsilon 3 MES</span>
+          </a>
+
+          <div class="grid grid-cols-2 gap-2.5">
+            <button onclick="copyAllSpecData()" class="bg-[#1f2937] hover:bg-[#283548] text-gray-200 border border-gray-700 font-semibold py-2.5 px-3 rounded-lg text-xs flex items-center justify-center space-x-1.5 transition">
+              <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+              <span>Copy Full Specs</span>
+            </button>
+            <button onclick="window.print()" class="bg-[#1f2937] hover:bg-[#283548] text-gray-200 border border-gray-700 font-semibold py-2.5 px-3 rounded-lg text-xs flex items-center justify-center space-x-1.5 transition">
+              <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+              <span>Print Spec Card</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Card Footer Credit -->
+      <div class="bg-[#0b0f19]/80 border-t border-gray-800 px-5 py-3 flex items-center justify-between text-[11px] text-gray-400">
+        <span>Designed by NovaTow Lead Engineer <strong class="text-purple-300 font-semibold">Omar Faruk</strong></span>
+        <span>Birmingham, AL</span>
+      </div>
+
+    </div>
+
+    <!-- Interactive URL Simulator & Test Console -->
+    <div class="w-full bg-[#111827] border border-gray-800 rounded-2xl p-5 space-y-4">
+      <div class="flex items-center justify-between border-b border-gray-800 pb-3">
+        <div class="flex items-center space-x-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
+          <h2 class="text-xs font-bold uppercase tracking-wider text-gray-200">Shop Testing Sandbox &amp; Query Simulator</h2>
+        </div>
+        <span class="text-[10px] text-gray-400 bg-gray-800 px-2 py-0.5 rounded">No Backend Needed</span>
+      </div>
+      <p class="text-xs text-gray-400 leading-relaxed">
+        Click a vehicle preset below to test how your phone camera will render this landing page when scanning different QR codes on the shop floor.
+      </p>
+
+      <!-- Preset Quick Buttons -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <button onclick="applyPreset('colorado-diode')" class="p-2 text-left rounded-lg bg-[#1f2937] hover:bg-purple-950/60 border border-gray-700 hover:border-purple-500/50 transition">
+          <span class="block text-[11px] font-bold text-purple-300">Colorado C26</span>
+          <span class="block text-[10px] text-gray-400 font-mono">ELE-01 Diode Box</span>
+        </button>
+        <button onclick="applyPreset('tacoma-pump')" class="p-2 text-left rounded-lg bg-[#1f2937] hover:bg-purple-950/60 border border-gray-700 hover:border-purple-500/50 transition">
+          <span class="block text-[11px] font-bold text-purple-300">Tacoma T26</span>
+          <span class="block text-[10px] text-gray-400 font-mono">HYD-01 Pump Unit</span>
+        </button>
+        <button onclick="applyPreset('tacoma-winch')" class="p-2 text-left rounded-lg bg-[#1f2937] hover:bg-purple-950/60 border border-gray-700 hover:border-purple-500/50 transition">
+          <span class="block text-[11px] font-bold text-purple-300">Tacoma T26</span>
+          <span class="block text-[10px] text-gray-400 font-mono">MEC-02 Winch</span>
+        </button>
+        <button onclick="applyPreset('colorado-chassis')" class="p-2 text-left rounded-lg bg-[#1f2937] hover:bg-purple-950/60 border border-gray-700 hover:border-purple-500/50 transition">
+          <span class="block text-[11px] font-bold text-purple-300">Colorado C26</span>
+          <span class="block text-[10px] text-gray-400 font-mono">TOP-01 Door Jamb</span>
+        </button>
+      </div>
+
+      <!-- Generated URL Bar -->
+      <div class="pt-2">
+        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Active QR Payload URL (Live in Address Bar)</label>
+        <div class="bg-[#1f2937] border border-gray-700 rounded-lg p-2.5 flex items-center justify-between">
+          <span id="activeUrlPreview" class="font-mono text-[11px] text-gray-300 truncate mr-2">--</span>
+          <button onclick="copyToClipboard('activeUrlPreview', 'Test URL')" class="text-xs text-purple-300 hover:text-white bg-purple-900/50 px-2 py-1 rounded border border-purple-600/40 shrink-0">Copy</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Floating Toast Notification (Zero native alerts used) -->
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-purple-900 border border-purple-400 text-white text-xs font-semibold px-4 py-2.5 rounded-full shadow-2xl opacity-0 pointer-events-none z-50 flex items-center space-x-2">
+    <svg class="w-4 h-4 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+    <span id="toastMsg">Action Successful</span>
+  </div>
+
+  <script>
+    /**
+     * NovaTow Dispatcher Application Core
+     * Completely static, zero backend exposure, strictly XSS-safe.
+     */
+
+    // Default Fallback Dataset (Used if opened without query parameters)
+    const DEFAULT_DATA = {
+      vin: "1GCBTEE43S1104921",
+      mbk: "C26-104921-0008",
+      unit: "MT1019-0008",
+      part: "ELE-01",
+      name: "DIODE ISOLATOR BOX",
+      workspace: "novatow" // Epsilon 3 tenant workspace
+    };
+
+    // Preset configurations for the in-app testing console
+    const PRESETS = {
+      'colorado-diode': {
+        vin: "1GCBTEE43S1104921",
+        mbk: "C26-104921-0008",
+        unit: "0008",
+        part: "ELE-01",
+        name: "DIODE ISOLATOR BOX"
+      },
+      'tacoma-pump': {
+        vin: "3TYKB5FN9TT041543",
+        mbk: "T26-041543-0004",
+        unit: "0004",
+        part: "HYD-01",
+        name: "HYDRAULIC PUMP UNIT"
+      },
+      'tacoma-winch': {
+        vin: "3TYKB5FN9TT041543",
+        mbk: "T26-041543-0004",
+        unit: "0004",
+        part: "MEC-02",
+        name: "WINCH ASSEMBLY"
+      },
+      'colorado-chassis': {
+        vin: "1GCBTEE43S1104921",
+        mbk: "C26-104921-0008",
+        unit: "0008",
+        part: "TOP-01",
+        name: "MASTER VEHICLE CHASSIS"
+      }
+    };
+
+    /**
+     * Parses the current browser URL query parameters
+     * Uses URLSearchParams and populates DOM strictly using textContent to prevent XSS.
+     */
+    function parseAndRenderAsset() {
+      const urlParams = new URLSearchParams(window.location.search);
+      
+      const vin  = (urlParams.get('vin') || DEFAULT_DATA.vin).trim().toUpperCase();
+      const mbk  = (urlParams.get('mbk') || DEFAULT_DATA.mbk).trim().toUpperCase();
+      const unit = (urlParams.get('unit') || DEFAULT_DATA.unit).trim().toUpperCase();
+      const part = (urlParams.get('part') || urlParams.get('cid') || DEFAULT_DATA.part).trim().toUpperCase();
+      
+      // Clean up readable component name (replace underscores with spaces)
+      let name = (urlParams.get('name') || urlParams.get('desc') || DEFAULT_DATA.name).replace(/_/g, ' ').trim().toUpperCase();
+      
+      // Determine domain badge from part code prefix (e.g. ELE, HYD, PNE, MEC)
+      let domain = "SUBSYSTEM";
+      if (part.startsWith("ELE")) domain = "ELECTRICAL";
+      else if (part.startsWith("HYD")) domain = "HYDRAULICS";
+      else if (part.startsWith("PNE")) domain = "PNEUMATICS";
+      else if (part.startsWith("MEC")) domain = "MECHANICAL";
+      else if (part.startsWith("TOP") || part.startsWith("MOD")) domain = "CHASSIS / VEHICLE";
+
+      // Render to DOM safely using textContent
+      document.getElementById('dispMbk').textContent = mbk;
+      document.getElementById('dispVin').textContent = vin;
+      document.getElementById('dispVinSuffix').textContent = vin.length >= 6 ? `...${vin.slice(-6)}` : vin;
+      document.getElementById('dispUnit').textContent = unit;
+      document.getElementById('dispCompCode').textContent = `CID: ${part}`;
+      document.getElementById('dispCompName').textContent = name;
+      document.getElementById('domainBadge').textContent = domain;
+      
+      // Timestamp
+      const now = new Date();
+      document.getElementById('scanTimestamp').textContent = `VERIFIED ${now.toLocaleDateString()}`;
+
+      // Construct live Epsilon 3 Deep Link
+      // Directs to the tenant's inventory search using the MBK as the search key
+      const e3Url = `https://app.epsilon3.io/novatow/inventory?search=${encodeURIComponent(mbk)}`;
+      document.getElementById('e3ActionBtn').href = e3Url;
+
+      // Update URL Preview bar
+      document.getElementById('activeUrlPreview').textContent = window.location.href;
+    }
+
+    /**
+     * Simulator preset switcher: Updates the query string in browser without a full reload
+     */
+    function applyPreset(presetKey) {
+      const data = PRESETS[presetKey];
+      if (!data) return;
+
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.set('vin', data.vin);
+      newUrl.searchParams.set('mbk', data.mbk);
+      newUrl.searchParams.set('unit', data.unit);
+      newUrl.searchParams.set('part', data.part);
+      newUrl.searchParams.set('name', data.name);
+
+      // Update history state so address bar reflects it cleanly
+      window.history.pushState({}, '', newUrl);
+      
+      parseAndRenderAsset();
+      showToast(`Loaded ${data.name} Preset`);
+    }
+
+    /**
+     * IFrame & Mobile-safe text copy utility using fallback textarea
+     */
+    function copyToClipboard(elementId, label) {
+      const text = document.getElementById(elementId).textContent;
+      executeCopy(text, `${label} copied to clipboard`);
+    }
+
+    function copyAllSpecData() {
+      const mbk = document.getElementById('dispMbk').textContent;
+      const vin = document.getElementById('dispVin').textContent;
+      const unit = document.getElementById('dispUnit').textContent;
+      const part = document.getElementById('dispCompCode').textContent;
+      const name = document.getElementById('dispCompName').textContent;
+
+      const fullSpec = `NOVATOW ASSET SPECIFICATION\n` +
+                       `--------------------------\n` +
+                       `MBK:  ${mbk}\n` +
+                       `VIN:  ${vin}\n` +
+                       `UNIT: ${unit}\n` +
+                       `PART: ${part} - ${name}\n` +
+                       `STATUS: Certified As-Built`;
+
+      executeCopy(fullSpec, "Full Specification Copied!");
+    }
+
+    function executeCopy(text, successMsg) {
+      const tempInput = document.createElement("textarea");
+      tempInput.value = text;
+      tempInput.style.position = "fixed";
+      tempInput.style.opacity = "0";
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      
+      try {
+        document.execCommand('copy');
+        showToast(successMsg);
+      } catch (err) {
+        showToast("Error copying to clipboard");
+      }
+      document.body.removeChild(tempInput);
+    }
+
+    /**
+     * Toast notification handler (No alert() used)
+     */
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      toastMsg.textContent = message;
+      
+      toast.classList.remove('opacity-0', 'pointer-events-none');
+      toast.classList.add('opacity-100');
+
+      setTimeout(() => {
+        toast.classList.remove('opacity-100');
+        toast.classList.add('opacity-0', 'pointer-events-none');
+      }, 2500);
+    }
+
+    // Initialize on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      parseAndRenderAsset();
+    });
+  </script>
+</body>
+</html>
